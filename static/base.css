@@ -17,16 +17,14 @@ main {
     width: 100%;
     min-height: 80%;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 35px 25px;
     background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
     color: #e2e8f0;
-    line-height: 1.6;
-    font-size: 1.1em;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.7;
+    font-size: 1.05em;
     overflow-y: auto;
 }
 
-/* Optionnel : pour limiter la largeur du texte et le centrer */
 main > * {
     max-width: 900px;
     margin-left: auto;
@@ -82,4 +80,24 @@ li:hover {
 
 nav .menu li:hover a {
     color: #16213e;
+}
+
+img {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    border: 1px solid #667eea;
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.15);
+    margin: 20px 0;
+    display: block;
+    filter: contrast(1.05) brightness(0.95);
+    max-width: 15%;
+    max-height: 15%;
+}
+
+img:hover {
+    border-color: #764ba2;
+    box-shadow: 0 0 25px rgba(118, 75, 162, 0.25);
+    transition: all 0.3s ease;
 }
