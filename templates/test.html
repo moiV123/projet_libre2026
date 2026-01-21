@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Éditeur Texte & Code</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+    <div id="app" class="max-w-5xl mx-auto p-4"></div>
+
+    <script>
+        const languages = ['javascript', 'c++', 'cpp', 'python', 'html', 'css', 'java', 'php', 'ruby', 'go', 'rust', 'sql', 'bash', 'typescript', 'json'];
+        
+        let state = {
+            blocks: [{ id: 1, type: 'text', content: 'Bienvenue dans cet éditeur ! Vous pouvez alterner entre texte et code.' }],
+            nextId: 2,
+            previewMode: false,
+            title: 'Nouvel article',
+            currentArticleId: null,
+            articles: []
+        };
+
+        function createIcon(name) {
+            const icons = {
+                plus: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="9" y1="3" x2="9" y2="15"/><line x1="3" y1="9" x2="15" y2="9"/></svg>',
+                text: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="15" y2="6"/><line x1="3" y1="10" x2="15" y2="10"/><line x1="3" y1="14" x2="10" y2="14"/></svg>',
+                code: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,3 2,9 6,15"/><polyline points="12,3 16,9 12,15"/></svg>',
+                trash: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 16,6"/><path d="M14,6v10a2,2,0,0,1-2,2H6a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h2a2,2,0,0,1,2,2V6"/></svg>',
+                up: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,12 10,8 14,12"/></svg>',
+                down: '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,8 10,12 14,8"/></svg>',
+                eye: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1,9s3-6,8-6,8,6,8,6-3,6-8,6S1,9,1,9Z"/><circle cx="9" cy="9" r="3"/></svg>',
+                save: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M15,17H3a2,2,0,0,1-2-2V3A2,2,0,0,1,3,1h9l5,5v9A2,2,0,0,1,15,17Z"/><polyline points="5,1 5,6 11,6 11,1"/></svg>',
+                copy: '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="8" height="8" rx="1"/><path d="M3,9H2A1,1,0,0,1,1,8V2A1,1,0,0,1,2,1H8A1,1,0,0,1,9,2V3"/></svg>',
+                check: '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="2,7 6,11 12,3"/></svg>',
+                list: '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="4" x2="16" y2="4"/><line x1="6" y1="9" x2="16" y2="9"/><line x1="6" y1="14" x2="16" y2="14"/><circle cx="2" cy="4" r="1" fill="currentColor"/><circle cx="2" cy="9" r="1" fill="currentColor"/><circle cx="2" cy="14" r="1" fill="currentColor"/></svg>'
+            };
+            return icons[name] || '';
+        }
+
+        function addBlock(type) {
+            state.blocks.push({ 
+                id: state.nextId++, 
+                type, 
+                content: '', 
+                language: 'javascript' 
+            });
+            render();
+        }
+
+        function updateBlock(id, field, value) {
+            const block = state.blocks.find(b => b.id === id);
+            if (block) block[field] = value;
+            render();
+        }
+
+        function deleteBlock(id) {
+            if (state.blocks.length > 1) {
+                state.blocks = state.blocks.filter(b => b.id !== id);
+                render();
+            }
+        }
+
+        function moveBlock(id, direction) {
+            const index = state.blocks.findIndex(b => b.id === id);
+            const newIndex = direction === 'up' ? index - 1 : index + 1;
+            if (newIndex >= 0 && newIndex < state.blocks.length) {
+                [state.blocks[index], state.blocks[newIndex]] = [state.blocks[newIndex], state.blocks[index]];
+                render();
+            }
+        }
+
+        function exportHTML() {
+            return state.blocks.map(block => {
+                if (block.type === 'text') {
+                    return `<p>${block.content.replace(/\n/g, '<br>')}</p>`;
+                }
+                return `<pre><code class="language-${block.language}">${block.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`;
+            }).join('\n');
+        }
+
+        async function copyToClipboard(text) {
+            await navigator.clipboard.writeText(text);
+            alert('Copié dans le presse-papiers !');
+        }
+
+        async function saveArticle() {
+            const article = {
+                title: state.title,
+                blocks: state.blocks
+            };
+
+            const method = state.currentArticleId ? 'PUT' : 'POST';
+            const url = state.currentArticleId 
+                ? `/api/articles/${state.currentArticleId}` 
+                : '/api/articles';
+
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(article)
+            });
+
+            if (response.ok) {
+                const saved = await response.json();
+                state.currentArticleId = saved.id;
+                alert('Article sauvegardé !');
+                loadArticles();
+            }
+        }
+
+        async function loadArticles() {
+            const response = await fetch('/api/articles');
+            state.articles = await response.json();
+            render();
+        }
+
+        async function loadArticle(id) {
+            const response = await fetch(`/api/articles/${id}`);
+            if (response.ok) {
+                const article = await response.json();
+                state.title = article.title;
+                state.blocks = article.blocks;
+                state.currentArticleId = article.id;
+                state.previewMode = false;
+                render();
+            }
+        }
+
+        async function deleteArticle(id) {
+            if (confirm('Voulez-vous vraiment supprimer cet article ?')) {
+                await fetch(`/api/articles/${id}`, { method: 'DELETE' });
+                loadArticles();
+            }
+        }
+
+        function newArticle() {
+            state = {
+                ...state,
+                blocks: [{ id: 1, type: 'text', content: '' }],
+                nextId: 2,
+                title: 'Nouvel article',
+                currentArticleId: null,
+                previewMode: false
+            };
+            render();
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            
+            app.innerHTML = `
+                <!-- Header -->
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <input 
+                            type="text" 
+                            value="${state.title}"
+                            onchange="state.title = this.value"
+                            class="text-3xl font-bold text-slate-800 border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2"
+                            placeholder="Titre de l'article"
+                        />
+                        <div class="flex gap-2">
+                            <button onclick="newArticle()" class="flex items-center gap-2 px-4 py-2 bg-slate-500 text-white rounded-lg hover:bg-slate-600 transition">
+                                ${createIcon('plus')} Nouveau
+                            </button>
+                            <button onclick="saveArticle()" class="flex items-center gap-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition">
+                                ${createIcon('save')} Sauvegarder
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-4">
+                        <button onclick="addBlock('text')" class="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                            ${createIcon('text')} Texte
+                        </button>
+                        <button onclick="addBlock('code')" class="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+                            ${createIcon('code')} Code
+                        </button>
+                        <button onclick="state.previewMode = !state.previewMode; render();" class="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition ml-auto">
+                            ${createIcon('eye')} ${state.previewMode ? 'Édition' : 'Aperçu'}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                ${state.articles.length > 0 ? `
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+                    <h3 class="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        ${createIcon('list')} Mes articles
+                    </h3>
+                    <div class="space-y-2">
+                        ${state.articles.map(article => `
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition">
+                                <button onclick="loadArticle(${article.id})" class="flex-1 text-left text-slate-700 hover:text-blue-600">
+                                    ${article.title}
+                                </button>
+                                <button onclick="deleteArticle(${article.id})" class="text-red-600 hover:text-red-700 p-1">
+                                    ${createIcon('trash')}
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Content -->
+                ${state.previewMode ? renderPreview() : renderEditor()}
+            `;
+
+            if (state.previewMode) {
+                document.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+        }
+
+        function renderEditor() {
+            return `
+                <div class="space-y-4">
+                    ${state.blocks.map((block, index) => `
+                        <div class="bg-white rounded-lg shadow-sm p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    ${block.type === 'text' ? `
+                                        <div class="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                                            ${createIcon('text')} Texte
+                                        </div>
+                                    ` : `
+                                        <div class="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                                            ${createIcon('code')} Code
+                                        </div>
+                                        <select onchange="updateBlock(${block.id}, 'language', this.value)" class="px-3 py-1 border rounded-lg text-sm bg-white">
+                                            ${languages.map(lang => `<option value="${lang}" ${block.language === lang ? 'selected' : ''}>${lang}</option>`).join('')}
+                                        </select>
+                                    `}
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="moveBlock(${block.id}, 'up')" ${index === 0 ? 'disabled' : ''} class="p-1 text-slate-600 hover:bg-slate-100 rounded disabled:opacity-30">
+                                        ${createIcon('up')}
+                                    </button>
+                                    <button onclick="moveBlock(${block.id}, 'down')" ${index === state.blocks.length - 1 ? 'disabled' : ''} class="p-1 text-slate-600 hover:bg-slate-100 rounded disabled:opacity-30">
+                                        ${createIcon('down')}
+                                    </button>
+                                    <button onclick="deleteBlock(${block.id})" ${state.blocks.length === 1 ? 'disabled' : ''} class="p-1 text-red-600 hover:bg-red-50 rounded disabled:opacity-30">
+                                        ${createIcon('trash')}
+                                    </button>
+                                </div>
+                            </div>
+                            <textarea
+                                onchange="updateBlock(${block.id}, 'content', this.value)"
+                                placeholder="${block.type === 'text' ? 'Écrivez votre texte ici...' : 'Écrivez votre code ici...'}"
+                                class="w-full p-4 border rounded-lg resize-none focus:ring-2 focus:ring-${block.type === 'text' ? 'blue' : 'green'}-500 focus:border-transparent ${block.type === 'code' ? 'font-mono text-sm bg-slate-50' : ''}"
+                                rows="${block.type === 'text' ? '6' : '10'}"
+                            >${block.content}</textarea>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderPreview() {
+            return `
+                <div class="bg-white rounded-lg shadow-sm p-8">
+                    <h2 class="text-2xl font-bold mb-6 text-slate-800">Aperçu</h2>
+                    ${state.blocks.map(block => {
+                        if (block.type === 'text') {
+                            return `<p class="text-slate-700 leading-relaxed mb-6 whitespace-pre-wrap">${block.content}</p>`;
+                        }
+                        return `
+                            <div class="relative mb-6">
+                                <div class="absolute top-2 right-2 flex gap-2">
+                                    <span class="px-2 py-1 bg-slate-700 text-slate-300 text-xs rounded">${block.language}</span>
+                                    <button onclick="copyToClipboard(\`${block.content.replace(/`/g, '\\`')}\`)" class="p-1 bg-slate-700 text-slate-300 rounded hover:bg-slate-600">
+                                        ${createIcon('copy')}
+                                    </button>
+                                </div>
+                                <pre class="!bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto"><code class="language-${block.language}">${block.content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+                            </div>
+                        `;
+                    }).join('')}
+                    
+                    <div class="mt-8 pt-6 border-t">
+                        <h3 class="font-semibold mb-3 text-slate-800">Export HTML</h3>
+                        <button onclick="copyToClipboard(exportHTML())" class="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 transition mb-3">
+                            ${createIcon('copy')} Copier le HTML
+                        </button>
+                        <pre class="bg-slate-100 p-4 rounded-lg text-sm overflow-x-auto border"><code>${exportHTML().replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+                    </div>
+                </div>
+            `;
+        }
+
+        loadArticles();
+        render();
+    </script>
+</body>
+</html>
