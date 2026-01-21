@@ -36,7 +36,6 @@ footer {
     font-weight: bold;
     justify-content: center;
 }
-
 nav .menu {
     list-style: none;
     display: flex;
@@ -51,15 +50,16 @@ nav .menu li a {
 }
 
 li {
-    width: 10px;
-    height: 10px;
-    padding: 2%;
+    display: inline-block;
+    padding: 10px 20px;
     text-align: center;
     background: #0F172A;
     color: #ffffff;
+    border-radius: 10px; /* Adjusted for rounded corners without being a circle */
 }
 
 li:hover {
-    background: #ffffff;;
+    background: #ffffff;
     color: #0F172A;
+    transition: 0.5s;
 }
