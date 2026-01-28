@@ -1,0 +1,12 @@
+.subtitle {
+    font-size: 1.2em;
+    color: #666;
+    justify-content: center;
+}
+
+.register_form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
