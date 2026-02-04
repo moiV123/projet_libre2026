@@ -1,13 +1,25 @@
 # app.py
 from flask import Flask, render_template, request, jsonify
+from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 import json
 from datetime import datetime
 
+load_dotenv()
+
 app = Flask(__name__)
+
+MONGO_URI = os.getenv('MONGO_URI')
+print(MONGO_URI)
+
+client = MongoClient(MONGO_URI)
+db = client.get_database('assemblerium')
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    assemblerium_data = db['assemblerium_data'].find({})
+    return render_template('index.html', articles = assemblerium_data)
 
 @app.route('/register')
 def register():

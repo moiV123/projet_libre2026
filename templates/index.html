@@ -2,9 +2,11 @@
 {% block content %}
 <main>
         <article>
-                <h2 class="article_title">Carte de contenu</h2>
-                <img src="/static/img/pexels-peaky-29459444.jpg">
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Laboriosam, id dolore minima eligendi, a velit culpa eum aliquam omnis earum blanditiis, ullam sequi commodi obcaecati porro facere accusantium harum odit!</p>
+                {% for article in articles %}
+                <h2 class="article_title">{{ article.titre }}</h2>
+                <img src="{{ article.image }}">
+                <p>{{ article.description }}</p>
+                {% endfor %}
         </article>
 </main>
 {% endblock %}
