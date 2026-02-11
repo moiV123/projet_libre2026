@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, jsonify, url_for, redirect
+from flask import Flask, render_template, request, jsonify, url_for, redirect, session
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
@@ -21,9 +21,27 @@ def index():
     assemblerium_data = list(db['articles'].find({})) # ici db collection articles
     return render_template('index.html', articles = assemblerium_data)
 
-@app.route('/register')
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    return render_template('/front/register.html')
+    if request.method == "POST":
+        if "username" not in request.form or "password" not in request.form or "confirm_password" not in request.form:
+            return render_template("register.html", erreur="Veuillez remplir tous les champs.")
+        
+        db_user = db["users"]
+        new_user = db_user.find_one({"username": request.form["username"]})
+        if new_user:
+            return render_template("register.html", erreur="Nom d'utilisateur déjà pris.")
+        else:
+            if request.form["password"] == request.form["confirm_password"]:
+                db_user.insert_one({
+                    "username": request.form["username"],
+                    "password": request.form["password"]
+                })
+                session["user_id"] = request.form["username"]
+                return redirect(url_for("index"))
+            else:
+                return render_template("register.html", erreur="Les mots de passe ne correspondent pas.")
+    return render_template("register.html")
 
 @app.route('/login')
 def login():
