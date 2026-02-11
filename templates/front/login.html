@@ -1,17 +1,22 @@
 {% extends "front/base.html" %}
 {% block content %}
-<main>
-    <main>
-        <h2 class="subtitle">Se connecter</h2>
-        <form method="POST" action="/login" class="login_form">
-            <label for="username">Nom d'utilisateur:</label>
+
+<!-- à rajouter après -->
+<!--{% if erreur %}
+    <p>Erreur : {{erreur}}</p>
+{% endif %}-->
+<div>
+    <form method="POST" action="{{url_for('login')}}">
+        <div>
+            <label for="username">Nom d'utilisateur :</label>
             <input type="text" id="username" name="username" required>
-            
-            <label for="password">Mot de passe:</label>
+        </div>
+        <div>
+            <label for="password">Mot de passe :</label>
             <input type="password" id="password" name="password" required>
-            
-            <button type="submit">Se connecter</button>
-        </form>
-</main>
-</main>
+        </div>
+        <button type="submit">Se connecter</button>
+    </form>
+</div>
+
 {% endblock %}

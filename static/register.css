@@ -1,12 +1,66 @@
 .subtitle {
     font-size: 1.2em;
-    color: #666;
-    justify-content: center;
+    color: #cbd5e1;
+    text-align: center;
+    margin-bottom: 30px;
 }
 
-.register_form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 20px;
+form {
+    max-width: 420px;
+    margin: 40px auto;
+    padding: 35px;
+    background: rgba(30, 42, 69, 0.6);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+form div {
+    margin-bottom: 22px;
+}
+
+label {
+    display: block;
+    color: #e2e8f0;
+    font-size: 0.95em;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 4px;
+    color: #e2e8f0;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.05em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
 }

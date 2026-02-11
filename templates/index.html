@@ -2,10 +2,10 @@
 {% block content %}
 <main>
         <article>
-                {% for article in articles %}
-                <h2 class="article_title">{{ article.titre }}</h2>
-                <img src="{{ article.image }}">
-                <p>{{ article.description }}</p>
+                {% for item in articles %}
+                <h2 class="article_title">{{ item.titre }}</h2>
+                <img src="{{ item.image }}">
+                <p>{{ item.description }}</p>
                 {% endfor %}
         </article>
 </main>

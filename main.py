@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for, redirect
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
@@ -14,17 +14,20 @@ MONGO_URI = os.getenv('MONGO_URI')
 print(MONGO_URI)
 
 client = MongoClient(MONGO_URI)
-db = client.get_database('assemblerium')
+db = client.get_database('assemblerium') # ici db assemblerium (niveau au dessus de articles)
 
 @app.route('/')
 def index():
-    assemblerium_data = db['assemblerium_data'].find({})
+    assemblerium_data = list(db['articles'].find({})) # ici db collection articles
     return render_template('index.html', articles = assemblerium_data)
 
 @app.route('/register')
 def register():
-    return render_template('register.html')
+    return render_template('/front/register.html')
 
+@app.route('/login')
+def login():
+    return render_template('/front/login.html')
 # articles = {}
 # next_id = 1
 
