@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, jsonify, url_for, redirect, session
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
 import os
 import json
 from datetime import datetime
@@ -58,6 +59,32 @@ def login():
             else:
                 return render_template("front/login.html", erreur="Identifiants incorrects.")
     return render_template('front/login.html')
+
+@app.route('/post/new_post', methods=["GET", "POST"])
+def new_post():
+    return render_template('front/new_post.html')
+
+@app.route('/post/create')
+def create_post():
+    title = request.form["title"]
+    text = request.form["text"]
+    image = request.form["image"]
+
+    if image:
+        filename = secure_filename(image.filename)
+        upload_path = os.path.join(app.static_folder, "images", filename)
+        image.save(upload_path)
+        image_path = f"/static/images/{filename}"
+    else:
+        image_path = ""
+    post = {
+        "title": title,
+        "text": text,
+        "image": image_path,
+        "created_at": datetime.now()
+    }
+    db["articles"].insert_one(post)
+    return redirect(url_for("index"))
 # articles = {}
 # next_id = 1
 
