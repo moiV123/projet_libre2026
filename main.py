@@ -9,6 +9,7 @@ from datetime import datetime
 load_dotenv()
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 MONGO_URI = os.getenv('MONGO_URI')
 print(MONGO_URI)
@@ -25,12 +26,12 @@ def index():
 def register():
     if request.method == "POST":
         if "username" not in request.form or "password" not in request.form or "confirm_password" not in request.form:
-            return render_template("register.html", erreur="Veuillez remplir tous les champs.")
+            return render_template("front/register.html", erreur="Veuillez remplir tous les champs.")
         
         db_user = db["users"]
         new_user = db_user.find_one({"username": request.form["username"]})
         if new_user:
-            return render_template("register.html", erreur="Nom d'utilisateur déjà pris.")
+            return render_template("front/register.html", erreur="Nom d'utilisateur déjà pris.")
         else:
             if request.form["password"] == request.form["confirm_password"]:
                 db_user.insert_one({
@@ -40,12 +41,23 @@ def register():
                 session["user_id"] = request.form["username"]
                 return redirect(url_for("index"))
             else:
-                return render_template("register.html", erreur="Les mots de passe ne correspondent pas.")
-    return render_template("register.html")
+                return render_template("front/register.html", erreur="Les mots de passe ne correspondent pas.")
+    return render_template("front/register.html")
 
-@app.route('/login')
+@app.route('/login', methods=["GET", "POST"])
 def login():
-    return render_template('/front/login.html')
+    if request.method == "POST":
+        if "username" not in request.form or "password" not in request.form:
+            return render_template("front/login.html", erreur="Veuillez remplir tous les champs.")
+        else:
+            db_user = db["users"]
+            user = db_user.find_one({"username": request.form["username"], "password": request.form["password"]})
+            if user:
+                session["user_id"] = request.form["username"]
+                return redirect(url_for("index"))
+            else:
+                return render_template("front/login.html", erreur="Identifiants incorrects.")
+    return render_template('front/login.html')
 # articles = {}
 # next_id = 1
 
