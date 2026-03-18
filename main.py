@@ -21,6 +21,7 @@ db = client.get_database('assemblerium') # ici db assemblerium (niveau au dessus
 @app.route('/')
 def index():
     assemblerium_data = list(db['articles'].find({})) # ici db collection articles
+    user_data = list(db['users'].find({})) # ici db collection users
     return render_template('index.html', articles = assemblerium_data)
 
 @app.route("/register", methods=["GET", "POST"])
@@ -64,6 +65,11 @@ def login():
 def new_post():
     return render_template('front/new_post.html')
 
+@app.route('logout')
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
+
 @app.route('/post/create')
 def create_post():
     title = request.form["title"]
@@ -85,6 +91,16 @@ def create_post():
     }
     db["articles"].insert_one(post)
     return redirect(url_for("index"))
+
+@app.route('/admin')
+def admin():
+    if 'util' in session and session['role'] == 'admin':
+        assemblerium_data = list(db['articles'].find({})) # ici db collection articles
+        user_data = list(db['users'].find({})) # ici db collection users
+        return render_template('templates/admin/home.admin.html', articles = assemblerium_data, users = user_data, erreur="erreur")
+    else:
+        return 'Accès refusé', 403
+
 # articles = {}
 # next_id = 1
 
