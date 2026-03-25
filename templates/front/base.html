@@ -16,9 +16,12 @@
         <nav>
             <ul class="menu">
                 <li><a href="/" class="home">Accueil</a></li>
-                <li><a href="/login">Se connecter</a></li>
-                <li><a href="/register">Créer un compte</a></li>
-                <li><a href="/logout">Se déconnecter</a></li>
+                {% if session.get('user_id') %}
+                    <li><a href="/logout">Se déconnecter</a></li>
+                {% else %}
+                    <li><a href="/login">Se connecter</a></li>
+                    <li><a href="/register">Créer un compte</a></li>
+                {% endif %}
             </ul>
         </nav>
         <!-- A rajouter plus tard-->

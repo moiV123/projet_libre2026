@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 import os
 import json
 from datetime import datetime
+from bson.objectid import ObjectId
 
 load_dotenv()
 
@@ -65,7 +66,7 @@ def login():
 def new_post():
     return render_template('front/new_post.html')
 
-@app.route('logout')
+@app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for("index"))
@@ -100,6 +101,33 @@ def admin():
         return render_template('templates/admin/home.admin.html', articles = assemblerium_data, users = user_data, erreur="erreur")
     else:
         return 'Accès refusé', 403
+    
+@app.route('/admin/update_role/<user_id>', methods=['POST'])
+def update_role(user_id):
+    if 'util' in session and session['role'] == 'admin':
+        new_role = request.form['role']
+        db['users'].update_one(
+            {'_id': ObjectId(user_id)},
+            {'$set': {'role': new_role}}
+        )
+    return redirect(url_for('admin'))
+
+@app.route('/admin/delete_user/<user_id>', methods=['GET'])
+def delete_user(user_id):
+    if 'util' in session and session['role'] == 'admin':
+        db["users"].delete_one({'_id': ObjectId(user_id)})
+    return redirect(url_for('admin'))
+
+@app.route('/admin/view_user/<user_id>', methods=['GET'])
+def show_user(user_id):
+    if 'util' in session and session['role'] == 'admin':
+        user = db["users"].find_one({'_id': ObjectId(user_id)})
+
+        if not user:
+            return redirect(url_for('admin'))
+        
+        return render_template('templates/admin/view_user.html', user=user)
+    return redirect(url_for('index'))
 
 # articles = {}
 # next_id = 1

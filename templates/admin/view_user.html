@@ -1,0 +1,10 @@
+{% extends "admin/home.admin.html" %}
+{% block content %}
+
+<h1>Profil de {{ user.username }}</h1>
+
+<p>Articles: {{ user.articles|length }}</p>
+
+<a href="{{ url_for('admin') }}">retour</a>
+
+{% endblock %}
