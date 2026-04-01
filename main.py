@@ -1,10 +1,8 @@
-# app.py
-from flask import Flask, render_template, request, jsonify, url_for, redirect, session
+from flask import Flask, render_template, request, redirect, url_for, session
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 import os
-import json
 from datetime import datetime
 from bson.objectid import ObjectId
 
@@ -14,165 +12,175 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 MONGO_URI = os.getenv('MONGO_URI')
-print(MONGO_URI)
-
 client = MongoClient(MONGO_URI)
-db = client.get_database('assemblerium') # ici db assemblerium (niveau au dessus de articles)
+db = client.get_database('assemblerium')
 
+# ------------------------
+# HOME
+# ------------------------
 @app.route('/')
 def index():
-    assemblerium_data = list(db['articles'].find({})) # ici db collection articles
-    user_data = list(db['users'].find({})) # ici db collection users
-    return render_template('index.html', articles = assemblerium_data)
+    articles = list(db['articles'].find({}))
+    return render_template('index.html', articles=articles)
 
+# ------------------------
+# REGISTER
+# ------------------------
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        if "username" not in request.form or "password" not in request.form or "confirm_password" not in request.form:
-            return render_template("front/register.html", erreur="Veuillez remplir tous les champs.")
-        
-        db_user = db["users"]
-        new_user = db_user.find_one({"username": request.form["username"]})
-        if new_user:
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirm = request.form.get("confirm_password")
+
+        if not username or not password or not confirm:
+            return render_template("front/register.html", erreur="Tous les champs sont requis.")
+
+        if password != confirm:
+            return render_template("front/register.html", erreur="Les mots de passe ne correspondent pas.")
+
+        if db["users"].find_one({"username": username}):
             return render_template("front/register.html", erreur="Nom d'utilisateur déjà pris.")
-        else:
-            if request.form["password"] == request.form["confirm_password"]:
-                db_user.insert_one({
-                    "username": request.form["username"],
-                    "password": request.form["password"]
-                })
-                session["user_id"] = request.form["username"]
-                return redirect(url_for("index"))
-            else:
-                return render_template("front/register.html", erreur="Les mots de passe ne correspondent pas.")
+
+        db["users"].insert_one({
+            "username": username,
+            "password": password,
+            "role": "user"
+        })
+
+        session["user_id"] = username
+        session["role"] = "user"
+
+        return redirect(url_for("index"))
+
     return render_template("front/register.html")
 
+# ------------------------
+# LOGIN
+# ------------------------
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        if "username" not in request.form or "password" not in request.form:
-            return render_template("front/login.html", erreur="Veuillez remplir tous les champs.")
-        else:
-            db_user = db["users"]
-            user = db_user.find_one({"username": request.form["username"], "password": request.form["password"]})
-            if user:
-                session["user_id"] = request.form["username"]
-                return redirect(url_for("index"))
-            else:
-                return render_template("front/login.html", erreur="Identifiants incorrects.")
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        user = db["users"].find_one({
+            "username": username,
+            "password": password
+        })
+
+        if user:
+            session["user_id"] = username
+            session["role"] = user.get("role", "user")
+            return redirect(url_for("index"))
+
+        return render_template("front/login.html", erreur="Identifiants incorrects.")
+
     return render_template('front/login.html')
 
-@app.route('/post/new_post', methods=["GET", "POST"])
-def new_post():
-    return render_template('front/new_post.html')
-
+# ------------------------
+# LOGOUT
+# ------------------------
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for("index"))
 
-@app.route('/post/create')
-def create_post():
-    title = request.form["title"]
-    text = request.form["text"]
-    image = request.form["image"]
+# ------------------------
+# NEW POST PAGE
+# ------------------------
+@app.route('/post/new_post')
+def new_post():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    return render_template('front/new_post.html')
 
-    if image:
+# ------------------------
+# CREATE POST
+# ------------------------
+@app.route('/post/create', methods=["POST"])
+def create_post():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    title = request.form.get("title")
+    text = request.form.get("text")
+    image = request.files.get("image")
+
+    image_path = ""
+
+    if image and image.filename != "":
         filename = secure_filename(image.filename)
         upload_path = os.path.join(app.static_folder, "images", filename)
         image.save(upload_path)
         image_path = f"/static/images/{filename}"
-    else:
-        image_path = ""
+
     post = {
         "title": title,
         "text": text,
         "image": image_path,
-        "created_at": datetime.now()
+        "created_at": datetime.now(),
+        "author": session["user_id"]
     }
+
     db["articles"].insert_one(post)
+
     return redirect(url_for("index"))
 
+# ------------------------
+# ADMIN
+# ------------------------
 @app.route('/admin')
 def admin():
-    if 'util' in session and session['role'] == 'admin':
-        assemblerium_data = list(db['articles'].find({})) # ici db collection articles
-        user_data = list(db['users'].find({})) # ici db collection users
-        return render_template('templates/admin/home.admin.html', articles = assemblerium_data, users = user_data, erreur="erreur")
-    else:
-        return 'Accès refusé', 403
-    
+    if 'user_id' in session and session.get('role') == 'admin':
+        articles = list(db['articles'].find({}))
+        users = list(db['users'].find({}))
+        return render_template('admin/home.admin.html', articles=articles, users=users)
+
+    return "Accès refusé", 403
+
+# ------------------------
+# UPDATE ROLE
+# ------------------------
 @app.route('/admin/update_role/<user_id>', methods=['POST'])
 def update_role(user_id):
-    if 'util' in session and session['role'] == 'admin':
-        new_role = request.form['role']
+    if 'user_id' in session and session.get('role') == 'admin':
+        new_role = request.form.get('role')
+
         db['users'].update_one(
             {'_id': ObjectId(user_id)},
             {'$set': {'role': new_role}}
         )
+
     return redirect(url_for('admin'))
 
-@app.route('/admin/delete_user/<user_id>', methods=['GET'])
+# ------------------------
+# DELETE USER
+# ------------------------
+@app.route('/admin/delete_user/<user_id>')
 def delete_user(user_id):
-    if 'util' in session and session['role'] == 'admin':
+    if 'user_id' in session and session.get('role') == 'admin':
         db["users"].delete_one({'_id': ObjectId(user_id)})
+
     return redirect(url_for('admin'))
 
-@app.route('/admin/view_user/<user_id>', methods=['GET'])
+# ------------------------
+# VIEW USER
+# ------------------------
+@app.route('/admin/view_user/<user_id>')
 def show_user(user_id):
-    if 'util' in session and session['role'] == 'admin':
+    if 'user_id' in session and session.get('role') == 'admin':
         user = db["users"].find_one({'_id': ObjectId(user_id)})
 
         if not user:
             return redirect(url_for('admin'))
-        
-        return render_template('templates/admin/view_user.html', user=user)
+
+        return render_template('admin/view_user.html', user=user)
+
     return redirect(url_for('index'))
 
-# articles = {}
-# next_id = 1
-
-# @app.route('/api/articles', methods=['GET'])
-# def get_articles():
-#     return jsonify(list(articles.values()))
-
-# @app.route('/api/articles/<int:article_id>', methods=['GET'])
-# def get_article(article_id):
-#     if article_id in articles:
-#         return jsonify(articles[article_id])
-#     return jsonify({'error': 'Article non trouvé'}), 404
-
-# @app.route('/api/articles', methods=['POST'])
-# def create_article():
-#     global next_id
-#     data = request.json
-#     article = {
-#         'id': next_id,
-#         'title': data.get('title', 'Sans titre'),
-#         'blocks': data.get('blocks', []),
-#         'created_at': datetime.now().isoformat(),
-#         'updated_at': datetime.now().isoformat()
-#     }
-#     articles[next_id] = article
-#     next_id += 1
-#     return jsonify(article), 201
-
-# @app.route('/api/articles/<int:article_id>', methods=['PUT'])
-# def update_article(article_id):
-#     if article_id not in articles:
-#         return jsonify({'error': 'Article non trouvé'}), 404
-    
-#     data = request.json
-#     articles[article_id]['title'] = data.get('title', articles[article_id]['title'])
-#     articles[article_id]['blocks'] = data.get('blocks', articles[article_id]['blocks'])
-#     articles[article_id]['updated_at'] = datetime.now().isoformat()
-#     return jsonify(articles[article_id])
-
-# @app.route('/api/articles/<int:article_id>', methods=['DELETE'])
-# def delete_article(article_id):
-#     if article_id in articles:
-#         del articles[article_id]
-#         return jsonify({'message': 'Article supprimé'})
-#     return jsonify({'error': 'Article non trouvé'}), 404
-
-app.run(host="0.0.0.0", port=81, debug=True)
+# ------------------------
+# RUN
+# ------------------------
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=81, debug=True)

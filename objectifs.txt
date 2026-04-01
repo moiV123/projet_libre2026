@@ -1,0 +1,7 @@
+A faire en priorité :
+Corrigez tout les bugs
+Terminer les graphismes de toutes les pages du site (surtout admin)
+Commencer à coder / chercher un éditeur de code intégré au site
+Choses secondaires :
+Améliorer le style de pages déjà existantes
+Ajouter des fonctionnalités secondaires sympa du type rôle, classement, etc.
