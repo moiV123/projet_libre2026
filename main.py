@@ -15,17 +15,11 @@ MONGO_URI = os.getenv('MONGO_URI')
 client = MongoClient(MONGO_URI)
 db = client.get_database('assemblerium')
 
-# ------------------------
-# HOME
-# ------------------------
 @app.route('/')
 def index():
     articles = list(db['articles'].find({}))
     return render_template('index.html', articles=articles)
 
-# ------------------------
-# REGISTER
-# ------------------------
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -55,9 +49,6 @@ def register():
 
     return render_template("front/register.html")
 
-# ------------------------
-# LOGIN
-# ------------------------
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -78,26 +69,17 @@ def login():
 
     return render_template('front/login.html')
 
-# ------------------------
-# LOGOUT
-# ------------------------
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for("index"))
 
-# ------------------------
-# NEW POST PAGE
-# ------------------------
 @app.route('/post/new_post')
 def new_post():
     if "user_id" not in session:
         return redirect(url_for("login"))
     return render_template('front/new_post.html')
 
-# ------------------------
-# CREATE POST
-# ------------------------
 @app.route('/post/create', methods=["POST"])
 def create_post():
     if "user_id" not in session:
@@ -127,21 +109,14 @@ def create_post():
 
     return redirect(url_for("index"))
 
-# ------------------------
-# ADMIN
-# ------------------------
 @app.route('/admin')
 def admin():
     if 'user_id' in session and session.get('role') == 'admin':
         articles = list(db['articles'].find({}))
         users = list(db['users'].find({}))
         return render_template('admin/home.admin.html', articles=articles, users=users)
-
     return "Accès refusé", 403
 
-# ------------------------
-# UPDATE ROLE
-# ------------------------
 @app.route('/admin/update_role/<user_id>', methods=['POST'])
 def update_role(user_id):
     if 'user_id' in session and session.get('role') == 'admin':
@@ -154,9 +129,6 @@ def update_role(user_id):
 
     return redirect(url_for('admin'))
 
-# ------------------------
-# DELETE USER
-# ------------------------
 @app.route('/admin/delete_user/<user_id>')
 def delete_user(user_id):
     if 'user_id' in session and session.get('role') == 'admin':
@@ -164,9 +136,6 @@ def delete_user(user_id):
 
     return redirect(url_for('admin'))
 
-# ------------------------
-# VIEW USER
-# ------------------------
 @app.route('/admin/view_user/<user_id>')
 def show_user(user_id):
     if 'user_id' in session and session.get('role') == 'admin':
@@ -179,8 +148,5 @@ def show_user(user_id):
 
     return redirect(url_for('index'))
 
-# ------------------------
-# RUN
-# ------------------------
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=81, debug=True)

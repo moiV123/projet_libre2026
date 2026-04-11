@@ -1,4 +1,4 @@
-{% extends "front/base.html" %}
+{% extends "admin/admin.base.html" %}
 {% block content %}
 
 <section>
@@ -23,7 +23,7 @@
                     </select>
                 </form>
             </td>
-                <td href="{{ url_for('view_user', user_id=user.id) }}">Voir</td>
+                <td href="{{ url_for('show_user', user_id=user.id) }}">Voir</td>
                 <td href="{{ url_for('delete_user', user_id=user.id) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">Supprimer</td>
             </tr>
             {% endfor %}
