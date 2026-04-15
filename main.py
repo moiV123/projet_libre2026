@@ -14,6 +14,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 MONGO_URI = os.getenv('MONGO_URI')
 client = MongoClient(MONGO_URI)
 db = client.get_database('assemblerium')
+TAGS = ["Algorithimique", "Mobile", "JV", "Web Development", "Cyberséccurité", "Data Science", "IA", "Cloud", "DevOps"]
 
 @app.route('/')
 def index():
@@ -97,17 +98,44 @@ def create_post():
         image.save(upload_path)
         image_path = f"/static/images/{filename}"
 
+    tags = request.form.getlist("tags")
+
     post = {
         "title": title,
         "text": text,
         "image": image_path,
         "created_at": datetime.now(),
-        "author": session["user_id"]
+        "author": session["user_id"],
+        "tag": tags,
+        "like": 0,
+        "liked_by": []
     }
 
     db["articles"].insert_one(post)
 
     return redirect(url_for("index"))
+
+@app.route('/post/like/<article_id>')
+def like_post(article_id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user = session["user_id"]
+
+    article = db["articles"].find_one({"_id": ObjectId(article_id)})
+
+    if user in article.get("liked_by", []):
+        return redirect(url_for("index"))
+    
+    db["articles"].update_one(
+        {"_id": ObjectId(article_id)},
+        {
+            "$inc": {"like": 1},
+            "$push": {"liked_by": user}
+        }
+    )
+
+    return redirect(url_for("article", article_id=article_id))
 
 @app.route('/admin')
 def admin():
