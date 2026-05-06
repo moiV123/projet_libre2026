@@ -143,3 +143,12 @@ select {
 select:hover {
     border-color: rgba(255, 255, 255, 0.2);
 }
+
+a {
+    text-decoration: none;
+    display: inline-block;
+}
+
+td {
+    vertical-align: middle;
+}

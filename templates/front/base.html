@@ -14,10 +14,11 @@
         <nav>
             <ul class="menu">
                 <li><a href="/" class="home">Accueil</a></li>
-                {% if admin %}
+                {% if session.get('role') == 'admin' %}
                     <li><a href="/admin">Administration</a></li>
                 {% endif %}
                 {% if session.get('user_id') %}
+                    <li><a href="/post/new_post">Ecrire un article</a></li>
                     <li><a href="/logout">Se déconnecter</a></li>
                 {% else %}
                     <li><a href="/login">Se connecter</a></li>

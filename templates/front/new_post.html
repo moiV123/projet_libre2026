@@ -2,66 +2,49 @@
 
 {% block content %}
 
-<main class = "m-10 p-10 border-2 round-lg">
-    <h1 class = "flex justify-center text-2xl">Ajoute un pokemon</h1>
-    <form method = "POST" action = "{{url_for('create_pokemon')}}" enctype = "multipart/form-data">
-      <!--Nom-->
-      <div>
-        <label>Nom</label>
-        <input type="text" name="nom" required placeholder="Nom du pokemon">
-      </div>
+<main class="m-10 p-10 border-2 rounded-lg">
+    <h1 class="flex justify-center text-2xl">Créer un article</h1>
 
-      <!--Type-->
-      <div>
-        <label>Type</label>
-        <select type="text" name="type" required placeholder="type du pokemon">
-          <option value="Feu">Feu</option>
-          <option value="Eau">Eau</option>
-          <option value="Electrique">Electrique</option>
-          <option value="Feu">Plantes</option>
-          <option value="Eau">Eau</option>
-          <option value="Electrique">Electrique</option>
-        </select>
-      </div>
+    <form method="POST" action="{{ url_for('create_post') }}" enctype="multipart/form-data">
 
-      <!--image-->
-      <div>
-        <label>image du pokemon</label>
-        <input type="file" name="image" accept="image/*">
-      </div>
-
-       <!--Description-->
-      <div>
-        <label>description</label>
-        <textarea name="description" rows="4" required placeholder="décrit ton pokemon"></textarea>
-      </div>
-
-      <!--Tags-->
-
-      <div>
-        <label for="">Choisis tes tags :</label>
         <div>
-            {% for tag in tags %}
-                <input type="checkbox" id="{{tag}}" name="tags" value="{{tag}}" class="">
-                <label for="{{tag}}">{{tag}}</label>
-            {% endfor %}
+            <label>Titre</label>
+            <input type="text" name="title" required placeholder="Titre de l'article">
         </div>
-    </div>
-    <p>
-        {% for tag in tags %}
-            <span>{{ tag }}</span>
-        {% endfor %}
-    </p>
-    <div>
-        <a href="{{ url_for('like_article', article_id=article.id)}}"></a>
-        <p> {{article.like}}</p>
-    </div>
 
-      <!--Bouton-->
-      <button type="submit"></button>
+        <!-- 
+        lE c0dE c tR0p c0mpliQUé 4 r3dact3ur d'4rt1cl3s, 4j0ut3r un 3d1t3ur d3 t3xt3 4v3c du m4rkD0wn, 4j0ut3r un b0ul3t1n d'1nf0rm4t10ns sur l'article (résumé, date de publication, etc.) et p0ss1bl3m3nt un systèm3 de v0t3s p0ur l4s l1s73urs
+
+
+
+
+        Editeur de code à rajouter
+        
+        
+        
+        
+        
+        -->
+
+        <div>
+            <label>Image</label>
+            <input type="file" name="image" accept="image/*">
+        </div>
+
+        <div>
+            <label>Choisis tes tags :</label>
+            <div>
+                {% for tag in tags %}
+                    <input type="checkbox" id="{{ tag }}" name="tags" value="{{ tag }}">
+                    <label for="{{ tag }}">{{ tag }}</label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- BOUTON -->
+        <button type="submit">Publier</button>
 
     </form>
-
 
 </main>
 

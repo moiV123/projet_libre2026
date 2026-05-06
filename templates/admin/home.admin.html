@@ -2,29 +2,53 @@
 {% block content %}
 
 <section>
-    <table>
+    <table border="1">
         <thead>
-            <th>Pseudo</th>
-            <th>Mot de passe</th>
-            <th>Photo de profil</th>
-            <th>Rôle</th>
+            <tr>
+                <th>Pseudo</th>
+                <th>Mot de passe</th>
+                <th>Photo de profil</th>
+                <th>Rôle</th>
+                <th>Voir</th>
+                <th>Supprimer</th>
+            </tr>
         </thead>
+
         <tbody>
             {% for user in users %}
             <tr>
-                <td>{{user.username}}</td>
-                <td>{{user.password}}</td>
-                <td><img src="{{user.pdp}}" alt="Photo de profil" width="50"></td>
-                            <td>
-                <form action="{{ url_for('update_role', user_id=user.id) }}" method="POST">
-                    <select name="role" onchange="this.form.submit()">
-                        <option value="user" {% if user.role == 'user' %}selected{% endif %}>Utilisateur</option>
-                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrateur</option>
-                    </select>
-                </form>
-            </td>
-                <td href="{{ url_for('show_user', user_id=user.id) }}">Voir</td>
-                <td href="{{ url_for('delete_user', user_id=user.id) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">Supprimer</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.password }}</td>
+                <td>
+                    {% if user.pdp %}
+                        <img src="{{ user.pdp }}" width="50">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+
+                <td>
+                    <form action="{{ url_for('update_role', user_id=user._id) }}" method="POST">
+                        <select name="role" onchange="this.form.submit()">
+                            <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                        </select>
+                    </form>
+                </td>
+
+                <td>
+                    <a class="action-btn" href="{{ url_for('show_user', user_id=user._id) }}">
+                        Voir
+                    </a>
+                </td>
+
+                <td>
+                    <a class="action-del"
+                    href="{{ url_for('delete_user', user_id=user._id) }}"
+                    onclick="return confirm('Êtes-vous sûr ?')">
+                        Supprimer
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
