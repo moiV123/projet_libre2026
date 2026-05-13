@@ -1,12 +1,20 @@
 {% extends "front/base.html" %}
 {% block content %}
+
 <main>
-        <article>
-                {% for item in articles %}
-                <h2 class="article_title">{{ item.titre }}</h2>
-                <img src="{{ item.image }}">
-                <p>{{ item.description }}</p>
-                {% endfor %}
-        </article>
+    <article>
+        {% for item in articles %}
+
+            <h2 class="article_title">{{ item.title }}</h2>
+
+            {% if item.image %}
+                <img src="{{ item.image }}" alt="image article">
+            {% endif %}
+
+            <p>{{ item.text }}</p>
+
+        {% endfor %}
+    </article>
 </main>
+
 {% endblock %}
