@@ -12,19 +12,16 @@
             <input type="text" name="title" required placeholder="Titre de l'article">
         </div>
 
-        <!-- 
-        lE c0dE c tR0p c0mpliQUé 4 r3dact3ur d'4rt1cl3s, 4j0ut3r un 3d1t3ur d3 t3xt3 4v3c du m4rkD0wn, 4j0ut3r un b0ul3t1n d'1nf0rm4t10ns sur l'article (résumé, date de publication, etc.) et p0ss1bl3m3nt un systèm3 de v0t3s p0ur l4s l1s73urs
+        <div class="editeur" name="editeur">
+            <label>Contenu</label>
+            <button type="button" class="code_add" onclick="add_code_place()">Ajouter du code</button>
+            <button type="button" class="normal_text_area" onclick="add_text_area()">Zone de texte normale</button>
+            <textarea name="content" required placeholder="Contenu de l'article">
+                <code class="code_place" name="code_place">
 
-
-
- 
-        Editeur de code à rajouter
-        
-        
-        
-        
-        
-        -->
+                </code>
+            </textarea>
+        </div>
 
         <div>
             <label>Image</label>

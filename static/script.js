@@ -42,6 +42,12 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             return;
         }
-        overlay.classList.remove("hidden");
+        if (overlay) {
+            overlay.classList.remove("hidden");
+
+            event.preventDefault();
+
+            setTimeout(() => {form.submit();}, 1000)
+        }
     });
 });
