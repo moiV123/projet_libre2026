@@ -12,15 +12,26 @@
             <input type="text" name="title" required placeholder="Titre de l'article">
         </div>
 
-        <div class="editeur" name="editeur">
-            <label>Contenu</label>
-            <button type="button" class="code_add" onclick="add_code_place()">Ajouter du code</button>
-            <button type="button" class="normal_text_area" onclick="add_text_area()">Zone de texte normale</button>
-            <textarea name="content" required placeholder="Contenu de l'article">
-                <code class="code_place" name="code_place">
+        <div class="editor-toolbar">
+            <button type="button" id="code_add">+ Bloc code</button>
+            <button type="button" id="text_add">+ Texte</button>
+        </div>
 
-                </code>
-            </textarea>
+        <div id="content" class="editor-content"></div>
+
+        <div class="code_place">
+        <div class="code_header">
+            <select class="language_select">
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="c">C</option>
+                <option value="cpp">C++</option>
+            </select>
+        </div>
+
+        <textarea class="code_input"></textarea>
         </div>
 
         <div>

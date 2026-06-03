@@ -176,5 +176,19 @@ def show_user(user_id):
 
     return redirect(url_for('index'))
 
+@app.route('/user')
+def user_profile():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    user = db["users"].find_one({
+        "username": session["user_id"]
+    })
+
+    if not user:
+        return redirect(url_for("index"))
+
+    return render_template("front/user.html", user=user)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=81, debug=True)

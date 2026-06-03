@@ -1,32 +1,92 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const content = document.getElementById('content');
-    const code_place = document.getElementById('code_place');
-    const code_add = document.getElementById('code_add');
-    const normal_text_area = document.getElementById('normal_text_area');
+document.addEventListener("DOMContentLoaded", () => {
 
-    function add_code_place() {
-        const new_code_place = document.createElement('div');
-        new_code_place.classList.add('code_place');
-        new_code_place.innerHTML = `<div class="code_place">
-    <div class="code_body">
-        <textarea class="code_input" placeholder="Entrez votre code ici..."></textarea>
-    </div>
-</div>`;
-        content.appendChild(new_code_place);
+    const editor = document.getElementById("editor");
+
+    document
+        .getElementById("add-text")
+        .addEventListener("click", addTextBlock);
+
+    document
+        .getElementById("add-code")
+        .addEventListener("click", addCodeBlock);
+
+    addTextBlock();
+
+    function addTextBlock() {
+
+        const block = document.createElement("div");
+
+        block.className = "block text-block";
+
+        block.innerHTML = `
+            <div class="block-header">
+                <span>Texte</span>
+
+                <button type="button" class="delete">
+                    ✕
+                </button>
+            </div>
+
+            <textarea
+                name="blocks[]"
+                class="text-input"
+                placeholder="Écris ton texte..."
+            ></textarea>
+        `;
+
+        attachDelete(block);
+
+        editor.appendChild(block);
     }
 
-    code_add.addEventListener('click', add_code_place);
+    function addCodeBlock() {
 
-    function add_text_area() {
-        const new_text_area = document.createElement('div');
-        new_text_area.classList.add('normal_text_area');
-        new_text_area.innerHTML = `<div class="normal_text_area">
-        <div class="text_body">
-            <textarea class="text_input" placeholder="Entrez votre texte ici..."></textarea>
-        </div>
-    </div>`;
-        content.appendChild(new_text_area);
+        const block = document.createElement("div");
+
+        block.className = "block code-block";
+
+        block.innerHTML = `
+            <div class="block-header">
+
+                <select name="languages[]">
+
+                    <option value="html">HTML</option>
+                    <option value="css">CSS</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                    <option value="c">C</option>
+                    <option value="cpp">C++</option>
+
+                </select>
+
+                <button type="button" class="delete">
+                    ✕
+                </button>
+
+            </div>
+
+            <textarea
+                name="codes[]"
+                class="code-input"
+                placeholder="Ton code..."
+            ></textarea>
+        `;
+
+        attachDelete(block);
+
+        editor.appendChild(block);
     }
 
-    normal_text_area.addEventListener('click', add_text_area);
+    function attachDelete(block) {
+
+        block
+            .querySelector(".delete")
+            .addEventListener("click", () => {
+
+                block.remove();
+
+            });
+
+    }
+
 });
