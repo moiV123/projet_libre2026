@@ -2,27 +2,29 @@
 
 {% block content %}
 
-<main class="profile-container">
+<main class="profile-page">
 
     <section class="profile-card">
 
-        <h2>Mon profil</h2>
+        <h1>Mon profil</h1>
 
         <div class="profile-info">
-            <span class="label">Nom d'utilisateur</span>
-            <span>{{ user.username }}</span>
-        </div>
 
-        <div class="profile-info">
-            <span class="label">Mot de passe</span>
-            <span>{{ user.password }}</span>
-        </div>
+            <p>
+                <strong>Nom d'utilisateur :</strong>
+                {{ user.username }}
+            </p>
 
-        <div class="profile-info">
-            <span class="label">Rôle</span>
-            <span class="role role-{{ user.role }}">
+            <p>
+                <strong>Mot de passe :</strong>
+                {{ user.password }}
+            </p>
+
+            <p>
+                <strong>Rôle :</strong>
                 {{ user.role }}
-            </span>
+            </p>
+
         </div>
 
     </section>

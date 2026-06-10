@@ -27,12 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 </button>
             </div>
 
-            <textarea
-                name="blocks[]"
-                class="text-input"
-                placeholder="Écris ton texte..."
-            ></textarea>
-        `;
+            <textarea name="codes[]" class="code-input"></textarea>
+
+            <input type="hidden" name="block_types[]" value="code">`;
 
         attachDelete(block);
 

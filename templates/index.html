@@ -1,20 +1,29 @@
 {% extends "front/base.html" %}
+
 {% block content %}
 
 <main class="articles-container">
 
     {% for item in articles %}
-    <article class="article-card">
 
-        <h2 class="article_title">{{ item.title }}</h2>
+    <a class="article-card"
+       href="{{ url_for('show_article', article_id=item._id) }}">
 
         {% if item.image %}
-            <img src="{{ item.image }}" alt="image article">
+            <img src="{{ item.image }}">
         {% endif %}
 
-        <p>{{ item.text }}</p>
+        <h2>{{ item.title }}</h2>
 
-    </article>
+        <p>{{ (item.get('text') or '')[:150] }}</p>
+
+        <div class="article-footer">
+            <span>{{ item.author }}</span>
+            <span>❤️ {{ item.like }}</span>
+        </div>
+
+    </a>
+
     {% endfor %}
 
 </main>

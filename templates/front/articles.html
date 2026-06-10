@@ -1,0 +1,52 @@
+{% extends "front/base.html" %}
+
+{% block content %}
+
+<main class="article-page">
+
+    <article class="article-full">
+
+        <h1>{{ article.title }}</h1>
+
+        <div class="article-meta">
+            <span>Auteur : {{ article.author }}</span>
+            <span> Likes : {{ article.like }}</span>
+        </div>
+
+        {% if article.image %}
+            <img src="{{ article.image }}" class="article-cover">
+        {% endif %}
+
+        <div class="article-content">
+
+            {% for block in article.content %}
+
+                {% if block.type == "text" %}
+                    <p class="article-text">{{ block.value }}</p>
+
+                {% elif block.type == "code" %}
+                    <pre class="code-block"><code class="lang-{{ block.lang }}">{{ block.value }}</code></pre>
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+        {% if article.tag %}
+        <div class="article-tags">
+            {% for tag in article.tag %}
+                <span class="tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <a class="like-btn"
+           href="{{ url_for('like_post', article_id=article._id) }}">
+            J'aime
+        </a>
+
+    </article>
+
+</main>
+
+{% endblock %}

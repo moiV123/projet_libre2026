@@ -1,59 +1,81 @@
-{% extends 'front/base.html' %}
+{% extends "front/base.html" %}
 
 {% block content %}
 
-<main class="m-10 p-10 border-2 rounded-lg">
-    <h1 class="flex justify-center text-2xl">Créer un article</h1>
+<main class="editor-page">
 
-    <form method="POST" action="{{ url_for('create_post') }}" enctype="multipart/form-data">
+    <form
+        method="POST"
+        action="{{ url_for('create_post') }}"
+        enctype="multipart/form-data"
+        class="post-form"
+    >
 
-        <div>
-            <label>Titre</label>
-            <input type="text" name="title" required placeholder="Titre de l'article">
-        </div>
+        <h1>Nouvel article</h1>
+
+        <label>Titre</label>
+
+        <input
+            type="text"
+            name="title"
+            class="article-title"
+            required
+        >
 
         <div class="editor-toolbar">
-            <button type="button" id="code_add">+ Bloc code</button>
-            <button type="button" id="text_add">+ Texte</button>
+
+            <button type="button" id="add-text">
+                + Texte
+            </button>
+
+            <button type="button" id="add-code">
+                + Code
+            </button>
+
         </div>
 
-        <div id="content" class="editor-content"></div>
+        <div id="editor" class="editor">
 
-        <div class="code_place">
-        <div class="code_header">
-            <select class="language_select">
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-                <option value="c">C</option>
-                <option value="cpp">C++</option>
-            </select>
+            <!-- Les blocs seront ajoutés ici par JS -->
+
         </div>
 
-        <textarea class="code_input"></textarea>
+        <label>Image</label>
+
+        <input
+            type="file"
+            name="image"
+            accept="image/*"
+        >
+
+        <label>Tags</label>
+
+        <div class="tags-container">
+
+            {% for tag in tags %}
+                <label class="tag-checkbox">
+                    <input
+                        type="checkbox"
+                        name="tags"
+                        value="{{ tag }}"
+                    >
+                    {{ tag }}
+                </label>
+            {% endfor %}
+
         </div>
 
-        <div>
-            <label>Image</label>
-            <input type="file" name="image" accept="image/*">
-        </div>
-
-        <div>
-            <label>Choisis tes tags :</label>
-            <div>
-                {% for tag in tags %}
-                    <input type="checkbox" id="{{ tag }}" name="tags" value="{{ tag }}">
-                    <label for="{{ tag }}">{{ tag }}</label>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- BOUTON -->
-        <button type="submit">Publier</button>
+        <button
+            type="submit"
+            class="publish-btn"
+        >
+            Publier
+        </button>
 
     </form>
 
 </main>
+
+<script src="{{ url_for('static', filename='editeur.js') }}"></script>
 
 {% endblock %}
