@@ -13,14 +13,12 @@
     padding: 35px;
 }
 
-/* TITLE */
 .article-full h1 {
     font-size: 34px;
     margin-bottom: 15px;
     color: #e2e8f0;
 }
 
-/* META */
 .article-meta {
     display: flex;
     gap: 15px;
@@ -29,14 +27,12 @@
     margin-bottom: 20px;
 }
 
-/* IMAGE */
 .article-cover {
     width: 100%;
     border-radius: 10px;
     margin-bottom: 25px;
 }
 
-/* CONTENT FIX IMPORTANT */
 .article-content {
     font-size: 16px;
     line-height: 1.7;
@@ -46,7 +42,6 @@
     word-break: break-word;
 }
 
-/* TAGS */
 .article-tags {
     margin-top: 20px;
     display: flex;
@@ -62,7 +57,6 @@
     color: #a5b4fc;
 }
 
-/* LIKE BUTTON */
 .like-btn {
     display: inline-block;
     margin-top: 20px;
@@ -82,4 +76,30 @@
 .like-btn:hover {
     background: rgba(102, 126, 234, 0.4);
     color: white;
+}
+
+.article-card img {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 180px !important;
+    object-fit: cover !important;
+    flex-shrink: 0;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    filter: none !important;
+    display: block !important;
+    box-shadow: none !important;
+}
+
+.article-card img {
+    width: 100%;
+    max-width: 100%; 
+    height: 180px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    filter: none;
 }

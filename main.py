@@ -1,3 +1,4 @@
+import uuid
 from flask import Flask, render_template, request, redirect, url_for, session
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -151,9 +152,15 @@ def new_post():
 
 @app.route("/post/create", methods=["POST"])
 def create_post():
-
     if "user_id" not in session:
         return redirect(url_for("login"))
+
+    image = request.files.get("image")
+    print("=== IMAGE DEBUG ===")
+    print(f"image: {image}")
+    print(f"filename: {image.filename if image else 'NO IMAGE'}")
+    print(f"content_type: {image.content_type if image else 'NO IMAGE'}")
+    print("===================")
 
     title = request.form.get("title")
     image = request.files.get("image")
@@ -184,12 +191,24 @@ def create_post():
     image_path = ""
 
     if image and image.filename:
+        print(f"filename: {image.filename}")
+        print(f"content_type: {image.content_type}")
+        print(f"ext: {os.path.splitext(image.filename)[1]}")
         upload_folder = os.path.join(app.static_folder, "images")
         os.makedirs(upload_folder, exist_ok=True)
 
-        filename = secure_filename(image.filename)
-        upload_path = os.path.join(upload_folder, filename)
+        ext = os.path.splitext(image.filename)[1].lower()  # .jpg, .png, etc.
+        name = secure_filename(os.path.splitext(image.filename)[0])  # nom sans extension
+        filename = f"{name}{ext}"  # on recolle proprement
 
+        upload_path = os.path.join(upload_folder, filename)
+        image.save(upload_path)
+        image_path = f"/static/images/{filename}"
+
+        if not os.path.splitext(filename)[1]:
+            filename = filename + ext
+
+        upload_path = os.path.join(upload_folder, filename)
         image.save(upload_path)
         image_path = f"/static/images/{filename}"
 

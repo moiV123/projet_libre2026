@@ -10,7 +10,7 @@
        href="{{ url_for('show_article', article_id=item._id) }}">
 
         {% if item.image %}
-            <img src="{{ item.image }}">
+            <img src="{{ item.image }}" alt="{{ item.title }}">
         {% endif %}
 
         <h2>{{ item.title }}</h2>

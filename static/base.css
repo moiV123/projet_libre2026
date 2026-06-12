@@ -30,11 +30,7 @@ main {
     font-size: 1.05em;
 }
 
-main > * {
-    max-width: 950px;
-    margin-left: auto;
-    margin-right: auto;
-}
+/* On retire "main > *" qui écrasait la grille des cartes */
 
 footer {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -93,7 +89,8 @@ nav .menu li:hover a {
     color: #1a1a2e;
 }
 
-img {
+/* Images UNIQUEMENT dans le contenu éditorial */
+.article-content img {
     width: 100%;
     max-width: 15%;
     height: auto;
@@ -105,7 +102,7 @@ img {
     filter: contrast(1.03) brightness(0.96);
 }
 
-img:hover {
+.article-content img:hover {
     border-color: rgba(118, 75, 162, 0.6);
     box-shadow: 0 0 22px rgba(118, 75, 162, 0.2);
     transition: all 0.25s ease;
